@@ -1,3 +1,7 @@
 import {Game} from './game';
-console.log('Game to start!');
-let g1 = new Game()
+window.onload = ()=>{
+    console.log('Game start...');
+    let game = new Game();
+    game.init();
+    
+};
