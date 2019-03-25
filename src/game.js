@@ -6,13 +6,20 @@ export class Game{
     constructor(){
         this.screen = new Screen();
         this.scenes = scenes;
-        this.currentScene = 0;        
+        this.currentScene = 1;        
     }
     init(){
-        this.scenes[this.currentScene].init(this.screen);        
+        this.scenes[this.currentScene].init(this.screen)
+                                        .then(()=>{                                            
+                                            console.log(this.currentScene);
+                                            this.changeScene();
+                                            console.log(this.currentScene);                                            
+                                            this.init();                                            
+                                        });        
         
     }
-    changeScene(){
-        this.changeScene = this.currentScene === this.scenes.length ? 0 : this.currentScene + 1;
+    changeScene(){        
+        if(this.currentScene === this.scenes.length - 1) this.currentScene=0;            
+        else this.currentScene++;        
     }
 }
