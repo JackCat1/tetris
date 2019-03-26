@@ -1,6 +1,5 @@
 export class BeginView{
-    constructor(){
-        console.log('View builded');
+    constructor(){        
         this.pic = new Image();
         this.pic.src = 'media/fon1.jpg';
         this.butText = 'START';      

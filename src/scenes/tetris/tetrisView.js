@@ -2,9 +2,7 @@ export class TetrisView{
     constructor(){
         this.blockImg = new Image();
         this.blockImg.src = 'media/blocks.png';
-        this.sliceImg(this.blockImg);
-              
-        
+        this.sliceImg(this.blockImg);       
     }
     sliceImg(img){
         img.onload = ()=>{
@@ -97,9 +95,25 @@ export class TetrisView{
         stopBtn.innerText = 'Stop';
 
         //Дополняем свойства объекта
-        this.canvas = canvas.getContext('2d');
+        this.canvas = canvas;
+        this.canvasCtx = canvas.getContext('2d');
 
         //Возращаем контроллеру
         return {mainDiv,output, startBtn, stopBtn};
+    }
+    addBlock(indexBlock,x,y){           
+        this.canvasCtx.drawImage(
+            this.blockImg, 
+            indexBlock, 
+            0, 
+            this.blocks.height, 
+            this.blocks.height, 
+            x, 
+            y, 
+            this.blocks.height, 
+            this.blocks.height);
+    }
+    clearCanvas(){
+        this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }

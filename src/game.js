@@ -10,10 +10,8 @@ export class Game{
     }
     init(){
         this.scenes[this.currentScene].init(this.screen)
-                                        .then(()=>{                                            
-                                            console.log(this.currentScene);
-                                            this.changeScene();
-                                            console.log(this.currentScene);                                            
+                                        .then(()=>{
+                                            this.changeScene();                                                                                        
                                             this.init();                                            
                                         });        
         

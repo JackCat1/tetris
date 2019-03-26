@@ -1,7 +1,6 @@
 import {BeginView} from './beginView';
 export class Begin{
-    constructor(){
-        console.log('I am Begin scene');
+    constructor(){        
         this.view = new BeginView();              
     }
     init(screen){
