@@ -9,7 +9,7 @@ export class Tetris{
         this.screen = screen;        
         return new Promise((resolve,reject)=>{
             let control = this.view.render(this.screen);
-            this.result = control.output.innerText;
+            this.result = control.output;
             this.startControl = control.startBtn;
             this.startControl.addEventListener('click',()=>{
                 this.matrix = this.sliceCanvas();
@@ -22,8 +22,12 @@ export class Tetris{
                         case 39: 
                             this.isRight();                            
                             break;
-                        case 40: 
-                            this.curretFigire.toDown();                            
+                        case 40:
+                            this.isBottom(); 
+                            //this.curretFigire.toDown();                            
+                            break;
+                        case 38:
+                            this.isRound();
                             break;
                     }
 
@@ -49,25 +53,25 @@ export class Tetris{
         this.curretFigire.body.forEach(item=>{
             this.view.addBlock(this.curretFigire.base,this.matrix[item].x,this.matrix[item].y);
         });
-        //Строим матрицу
+        //Строим матрицу       
         this.matrix.forEach(item=>{
             if(item.block>-1){
                 this.view.addBlock(item.block,item.x,item.y);
             }
-        });             
+        });                    
         
     }
     downFigure(){
         setInterval(()=>{
           this.isBottom();
-          this.curretFigire.toDown();
-          this.isResult();  
+          this.isResult()                            
         },300);
     }
     isLeft(){
         let isStop = false;
         this.curretFigire.body.forEach(item=>{
             if(item % 10 === 0) isStop = true;
+            if(this.matrix[item-1].block>-1)isStop = true;
         });
         if(!isStop)this.curretFigire.toLeft(); 
     }
@@ -75,8 +79,34 @@ export class Tetris{
         let isStop = false;
         this.curretFigire.body.forEach(item=>{            
             if((item+1) % 10 === 0) isStop = true;
+            if(this.matrix[item+1].block>-1)isStop = true;
         });
         if(!isStop)this.curretFigire.toRight(); 
+    }
+    isRound(){
+        let isStop = false;
+        let oldVers = [];
+        this.curretFigire.body.forEach(item=>oldVers.push(item));
+        this.curretFigire.round();
+        this.curretFigire.body.forEach(item=>{            
+             if(this.matrix[item+1].block>-1)isStop = true;
+        });
+        if(isStop)this.curretFigire.body=oldVers;
+        else{
+            isStop = false;
+            this.curretFigire.body.forEach(item=>{
+                if((item+1)%10===0){
+                    this.curretFigire.body.forEach(x=>{
+                        if(x-1===item)isStop=true;
+                    });
+                }
+            });
+            if(isStop){
+                this.curretFigire.toLeft()
+            }
+        }
+
+        
     }
     isBottom(){
         let isStop=false;
@@ -90,6 +120,7 @@ export class Tetris{
             });
             this.curretFigire = this.getFigure(); 
         }
+        if(!isStop)this.curretFigire.toDown(); 
     }    
     getFigure(){
         let type = Math.floor(Math.random() * (7 - 0)) + 0;
@@ -108,22 +139,37 @@ export class Tetris{
         return matrix;        
     }
     isResult(){
+        let resArr = [];
         for(let i=0;i<this.matrix.length;i+=10){
-            if(this.matrix[i].block>-1 && 
-                this.matrix[i+1].block>-1 && 
-                this.matrix[i+2].block>-1 && 
-                this.matrix[i+3].block>-1 && 
-                this.matrix[i+4].block>-1 && 
-                this.matrix[i+5].block>-1 && 
-                this.matrix[i+6].block>-1 && 
-                this.matrix[i+7].block>-1 && 
-                this.matrix[i+8].block>-1 && 
-                this.matrix[i+9].block>-1  
-                ){
-                    this.result+=100;
-
-
+            let count = 0;
+            for(let j=i;j<i+10;j++){
+                if(this.matrix[j].block>-1)count++;
             }
+            if(count===10)resArr.push(i);
         }
+        
+        if(resArr.length>0){
+            for(let i=0;i<resArr.length;i++){                
+                for(let j=resArr[i];j<resArr[i]+10;j++){
+                    this.matrix[j].block=-1;
+                    for(let t=j;t>=10;t-=10){
+                        this.matrix[t].block=this.matrix[t-10].block;
+                    }
+                }
+            }
+            switch(resArr.length){
+                case 1:this.result.innerText = +this.result.innerText+100;
+                break;
+                case 2:this.result.innerText = +this.result.innerText+300;
+                break;
+                case 3:this.result.innerText = +this.result.innerText+700;
+                break;
+                case 4:this.result.innerText = +this.result.innerText+1500;
+                break;
+            }
+            
+            
+        }
+       
     }
 }
