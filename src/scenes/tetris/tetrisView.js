@@ -116,4 +116,10 @@ export class TetrisView{
     clearCanvas(){
         this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+    showText(text){
+        this.canvasCtx.fillStyle = 'yellow';
+        this.canvasCtx.font = '38px BancoDi';
+        this.canvasCtx.textAlign = 'center';
+        this.canvasCtx.fillText(text,this.canvas.width/2,this.canvas.height/2);
+    }
 }

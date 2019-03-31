@@ -3,6 +3,7 @@ import {Figure} from './figure';
 export class Tetris{
     constructor(){
         this.view = new TetrisView();
+        this.gameSpeed = 300;
                
     }
     init(screen){        
@@ -14,6 +15,8 @@ export class Tetris{
             this.startControl.addEventListener('click',()=>{
                 this.matrix = this.sliceCanvas();
                 this.curretFigire = this.getFigure();
+                this.intervalId = this.downFigure();
+                this.isPauseGame = false;                
                 document.addEventListener('keydown',(event)=>{
                     switch(event.keyCode){
                         case 37: 
@@ -29,11 +32,21 @@ export class Tetris{
                         case 38:
                             this.isRound();
                             break;
+                        case 32:
+                            if(this.isPauseGame){
+                                this.intervalId = this.downFigure();                                 
+                            } else{
+                                clearInterval(this.intervalId);
+                            }
+                            this.isPauseGame = !this.isPauseGame;
+                            break;
                     }
 
                 });
-                this.downFigure();
+                this.upSpeed();
                 this.loop();
+                
+
             });
             this.endControl = control.stopBtn;
             this.endControl.onclick = ()=>{
@@ -62,10 +75,10 @@ export class Tetris{
         
     }
     downFigure(){
-        setInterval(()=>{
+        return setInterval(()=>{
           this.isBottom();
-          this.isResult()                            
-        },300);
+          this.isResult();                            
+        },this.gameSpeed);
     }
     isLeft(){
         let isStop = false;
@@ -97,12 +110,13 @@ export class Tetris{
             this.curretFigire.body.forEach(item=>{
                 if((item+1)%10===0){
                     this.curretFigire.body.forEach(x=>{
-                        if(x-1===item)isStop=true;
+                        if(x>item&&this.curretFigire.type===0)this.curretFigire.toLeft();
+                        if(x>item&&this.curretFigire.type>0)isStop=true;
                     });
                 }
             });
             if(isStop){
-                this.curretFigire.toLeft()
+                this.curretFigire.toLeft();
             }
         }
 
@@ -140,36 +154,48 @@ export class Tetris{
     }
     isResult(){
         let resArr = [];
+        let isGameEnd = false;
         for(let i=0;i<this.matrix.length;i+=10){
             let count = 0;
             for(let j=i;j<i+10;j++){
                 if(this.matrix[j].block>-1)count++;
+                if(i===0 && this.matrix[j].block>-1)isGameEnd=true;
             }
             if(count===10)resArr.push(i);
         }
-        
-        if(resArr.length>0){
-            for(let i=0;i<resArr.length;i++){                
-                for(let j=resArr[i];j<resArr[i]+10;j++){
-                    this.matrix[j].block=-1;
-                    for(let t=j;t>=10;t-=10){
-                        this.matrix[t].block=this.matrix[t-10].block;
+        if(isGameEnd){
+            console.log('Game over!');
+            clearInterval(this.intervalId);
+            window.cancelAnimationFrame(this.stopLoop);
+            this.view.showText('Game over!!!');          
+
+        } else if(resArr.length>0){
+                    for(let i=0;i<resArr.length;i++){                
+                        for(let j=resArr[i];j<resArr[i]+10;j++){
+                            this.matrix[j].block=-1;
+                            for(let t=j;t>=10;t-=10){
+                                this.matrix[t].block=this.matrix[t-10].block;
+                            }
+                        }
                     }
-                }
-            }
-            switch(resArr.length){
-                case 1:this.result.innerText = +this.result.innerText+100;
-                break;
-                case 2:this.result.innerText = +this.result.innerText+300;
-                break;
-                case 3:this.result.innerText = +this.result.innerText+700;
-                break;
-                case 4:this.result.innerText = +this.result.innerText+1500;
-                break;
-            }
+                    switch(resArr.length){
+                        case 1:this.result.innerText = +this.result.innerText+100;
+                        break;
+                        case 2:this.result.innerText = +this.result.innerText+300;
+                        break;
+                        case 3:this.result.innerText = +this.result.innerText+700;
+                        break;
+                        case 4:this.result.innerText = +this.result.innerText+1500;
+                        break;
+                    }           
             
-            
-        }
-       
+                }      
+    }
+    upSpeed(){
+        setInterval(()=>{
+            this.gameSpeed -= 20;
+            clearInterval(this.intervalId);            
+            this.intervalId = this.downFigure();
+        },30000);
     }
 }
